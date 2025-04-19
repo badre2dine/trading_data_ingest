@@ -1,0 +1,16 @@
+# .github/workflows/test-runner.yaml
+name: ARC Runner Scale Set Test
+
+on:
+  workflow_dispatch:
+
+jobs:
+  test-runner:
+    runs-on: [arc]  # Use the same name as your scale set (defined in Helm as runnerScaleSetName)
+    steps:
+      - name: Check system
+        run: |
+          echo "✅ Running on ARC scale-set runner"
+          uname -a
+          echo "Hostname: $(hostname)"
+          echo "Whoami: $(whoami)"
