@@ -6,7 +6,7 @@ on:
 
 jobs:
   test-runner:
-    runs-on: [arc-runner-set]  # Use the same name as your scale set (defined in Helm as runnerScaleSetName)
+    runs-on: [arc-runner-1]  # Use the same name as your scale set (defined in Helm as runnerScaleSetName)
     steps:
       - name: Check system
         run: |
