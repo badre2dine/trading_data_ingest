@@ -5,12 +5,11 @@ on:
   workflow_dispatch:
 
 jobs:
-  test-runner:
-    runs-on: [arc-runner-1]  # Use the same name as your scale set (defined in Helm as runnerScaleSetName)
+  debug:
+    runs-on: [self-hosted, arc]
     steps:
-      - name: Check system
+      - name: Time check
         run: |
-          echo "✅ Running on ARC scale-set runner"
-          uname -a
-          echo "Hostname: $(hostname)"
-          echo "Whoami: $(whoami)"
+          echo "RUNNER started at: $(date -u)"
+      - name: Network test
+        run: curl -I https://github.com
