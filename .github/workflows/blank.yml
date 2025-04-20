@@ -6,7 +6,7 @@ on:
 
 jobs:
   debug:
-    runs-on: [self-hosted, arc]
+    runs-on: [arc-runner-1]
     steps:
       - name: Time check
         run: |
