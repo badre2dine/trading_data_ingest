@@ -1,0 +1,44 @@
+from .celery_app import celery_app
+from app.downloader import download
+from app.tasks_loger import save_task_log
+from app.db import SessionLocal
+from datetime import datetime
+import traceback
+
+
+@celery_app.task(bind=True)
+def download_month(self, symbol, year, month):
+    task_id = self.request.id
+    db = SessionLocal()
+
+    try:
+        save_task_log(
+            task_id,
+            symbol,
+            year,
+            month,
+            status="STARTED",
+            start=datetime.now(),
+        )
+        download(symbol, year, month, interval="1m")
+        save_task_log(
+            task_id,
+            symbol,
+            year,
+            month,
+            status="SUCCESS",
+            end=datetime.now(),
+            result="Done",
+        )
+    except Exception:
+        save_task_log(
+            task_id,
+            symbol,
+            year,
+            month,
+            status="FAILURE",
+            end=datetime.now(),
+            error=traceback.format_exc(),
+        )
+
+    db.close()

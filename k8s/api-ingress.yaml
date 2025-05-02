@@ -1,0 +1,24 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ingestion-api-ingress
+  namespace: data-ingestion
+  annotations:
+    cert-manager.io/cluster-issuer: "letsencrypt-cluster-issuer"
+    traefik.ingress.kubernetes.io/router.entrypoints: websecure
+spec:
+  tls:
+    - hosts:
+        - ingestion-api.trading-app.k8s.home.badre2dine.dev
+      secretName: ingestion-api-trading-app-tls
+  rules:
+    - host: ingestion-api.trading-app.k8s.home.badre2dine.dev
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: ingestion-api
+                port:
+                  number: 80

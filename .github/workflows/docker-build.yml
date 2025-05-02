@@ -21,9 +21,18 @@ jobs:
           username: ${{ secrets.HARBOR_USERNAME }}
           password: ${{ secrets.HARBOR_PASSWORD }}
 
-      - name: Build and Push Docker image
+      - name: Build and Push Docker API image
         uses: docker/build-push-action@v5
         with:
           context: .
+          file: ./api/dockerfile
           push: true
-          tags: ${{ secrets.HARBOR_REGISTRY }}/${{ secrets.HARBOR_PROJECT }}/${{ secrets.IMAGE_NAME }}:latest
+          tags: ${{ secrets.HARBOR_REGISTRY }}/${{ secrets.HARBOR_PROJECT }}/data-ingest-api:latest
+
+      - name: Build and Push Docker Worker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./worker/dockerfile
+          push: true
+          tags: ${{ secrets.HARBOR_REGISTRY }}/${{ secrets.HARBOR_PROJECT }}/data-ingest-worker:latest

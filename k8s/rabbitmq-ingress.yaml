@@ -1,0 +1,24 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: rabbitmq-ingress
+  namespace: data-ingestion
+  annotations:
+    cert-manager.io/cluster-issuer: "letsencrypt-cluster-issuer"
+    traefik.ingress.kubernetes.io/router.entrypoints: websecure
+spec:
+  tls:
+    - hosts:
+        - rabbitmq.trading-app.k8s.home.badre2dine.dev
+      secretName: rabbitmq-trading-app-tls
+  rules:
+    - host: rabbitmq.trading-app.k8s.home.badre2dine.dev
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: rabbitmq
+                port:
+                  number: 15672
