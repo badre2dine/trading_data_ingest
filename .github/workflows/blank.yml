@@ -13,3 +13,18 @@ jobs:
           echo "RUNNER started at: $(date -u)"
       - name: Network test
         run: curl -I https://github.com
+      - name: Install kubectl (user path)
+        run: |
+          mkdir -p ~/bin
+          curl -Lo ~/bin/kubectl "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+          chmod +x ~/bin/kubectl
+          echo "$HOME/bin" >> $GITHUB_PATH
+          
+      - name: Check kubectl version
+        run: kubectl version --client
+
+      - name: List all pods
+        run: kubectl get pods -A
+
+      - name: List nodes
+        run: kubectl get nodes
