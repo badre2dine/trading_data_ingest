@@ -20,7 +20,6 @@ spec:
       containers:
         - name: celery
           image: harbor.home.badre2dine.dev/trading_data_ingest/data-ingest-worker:latest
-          command: ["celery", "-A", "app.worker", "worker", "--loglevel=info"]
           env:
             - name: PARQUET_OUTPUT_DIR
               value: /data/parquet

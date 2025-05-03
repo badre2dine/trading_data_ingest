@@ -13,8 +13,6 @@ spec:
       labels:
         app: ingestion-api
     spec:
-      nodeSelector:
-        kubernetes.io/hostname: worker-2
       containers:
         - name: api
           image: harbor.home.badre2dine.dev/trading_data_ingest/data-ingest-api:latest

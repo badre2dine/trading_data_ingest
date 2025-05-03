@@ -4,6 +4,11 @@ from app.tasks_loger import save_task_log
 from app.db import SessionLocal
 from datetime import datetime
 import traceback
+import os
+
+# Define the output directory for parquet files
+
+PARQUET_OUTPUT_DIR = os.getenv("PARQUET_OUTPUT_DIR", "./data")
 
 
 @celery_app.task(bind=True)
@@ -20,7 +25,7 @@ def download_month(self, symbol, year, month):
             status="STARTED",
             start=datetime.now(),
         )
-        download(symbol, year, month, interval="1m")
+        download(symbol, year, month, interval="1m", out_dir=PARQUET_OUTPUT_DIR)
         save_task_log(
             task_id,
             symbol,
