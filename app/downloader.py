@@ -2,6 +2,7 @@ from datetime import datetime
 import httpx
 import polars as pl
 from pathlib import Path
+import time
 
 
 def get_kucoin_klines(symbol, interval, start, end):
@@ -33,7 +34,6 @@ def get_binance_klines(symbol, interval, start, end):
         "endTime": end,
         "limit": 1000,
     }
-    print(params)
     with httpx.Client(timeout=30) as client:
         response = client.get(url, params=params)
         response.raise_for_status()

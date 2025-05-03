@@ -38,9 +38,9 @@ def ingest(req: BatchRequest):
         task = download_month.delay(req.symbol, current.year, current.month)
         tasks.append({"year": current.year, "month": current.month, "task_id": task.id})
         if current.month == 12:
-            current = datetime.date(current.year + 1, 1, 1)
+            current = datetime.datetime(current.year + 1, 1, 1)
         else:
-            current = datetime.date(current.year, current.month + 1, 1)
+            current = datetime.datetime(current.year, current.month + 1, 1)
 
     return {"status": "submitted", "tasks": tasks}
 
