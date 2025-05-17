@@ -40,6 +40,6 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: .
-          file: ./pari-tick-streamer/dockerfile
+          file: ./pair-tick-streamer/dockerfile
           push: true
           tags: ${{ secrets.HARBOR_REGISTRY }}/${{ secrets.HARBOR_PROJECT }}/data-ingest-streamer:latest
