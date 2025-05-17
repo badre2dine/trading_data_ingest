@@ -1,0 +1,14 @@
+FROM python:3.11-slim
+
+WORKDIR /app
+
+
+COPY ./pair-tick-streamer/requirements.txt .
+# Install Python dependencies
+RUN pip install --no-cache-dir --upgrade pip \
+    && pip install --no-cache-dir -r requirements.txt
+
+COPY ./pair-tick-streamer/main.py ./pair-tick-streamer/redis_writer.py ./
+
+
+CMD ["python", "main.py"]

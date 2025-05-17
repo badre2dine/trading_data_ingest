@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pair-tick-streamer-btc-usdt
+  namespace: ingestion-data
+  labels:
+    app: pair-tick-streamer
+    pair: btc-usdt
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: pair-tick-streamer
+      pair: btc-usdt
+  template:
+    metadata:
+      labels:
+        app: pair-tick-streamer
+        pair: btc-usdt
+    spec:
+      containers:
+        - name: tick-streamer
+          image: harbor.home.badre2dine.dev/trading_data_ingest/data-ingest-streamer:latest
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: PAIR
+              value: BTC-USDT
+            - name: REDIS_HOST
+              value: redis-master
+            - name: REDIS_PORT
+              value: "6379"
+          resources:
+            requests:
+              cpu: "10m"
+              memory: "50Mi"
+            limits:
+              cpu: "100m"
+              memory: "128Mi"
+      imagePullSecrets:
+        - name: harbor-creds
