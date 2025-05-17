@@ -14,3 +14,4 @@ psycopg2-binary>=2.9.9
 rabbitmq-admin>=0.2
 python-dateutil>=2.8.2
 zstandard>=0.22.0
+kubernetes>=27.0.0

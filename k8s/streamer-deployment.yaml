@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: pair-tick-streamer-btc-usdt
-  namespace: ingestion-data
+  namespace: data-ingestion
   labels:
     app: pair-tick-streamer
     pair: btc-usdt
