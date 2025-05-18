@@ -2,9 +2,9 @@ apiVersion: batch/v1
 kind: CronJob
 metadata:
   name: update-monthly
-  namespace: ingestion-data
+  namespace: data-ingestion
 spec:
-  schedule: "0 * * * *"  # Every hour
+  schedule: "* * * * *"  # Every hour
   concurrencyPolicy: Forbid
   successfulJobsHistoryLimit: 1
   failedJobsHistoryLimit: 2
@@ -14,7 +14,7 @@ spec:
         spec:
           restartPolicy: OnFailure
           containers:
-            - name: api
+            - name: update-monthly
               image: harbor.home.badre2dine.dev/trading_data_ingest/data-ingest-monthly-update:latest
           imagePullSecrets:
             - name: harbor-creds
