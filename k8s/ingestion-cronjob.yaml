@@ -4,7 +4,7 @@ metadata:
   name: update-monthly
   namespace: data-ingestion
 spec:
-  schedule: "* * * * *"  # Every hour
+  schedule: "1 * * * *"  # Every hour
   concurrencyPolicy: Forbid
   successfulJobsHistoryLimit: 1
   failedJobsHistoryLimit: 2
