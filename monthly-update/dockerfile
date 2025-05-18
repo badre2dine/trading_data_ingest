@@ -16,4 +16,4 @@ COPY . .
 
 
 # Launch FastAPI app with the new run.py entry point
-CMD ["python", "monthly-update/main.py"]
+CMD ["python", "-m", "monthly-update.main"]
