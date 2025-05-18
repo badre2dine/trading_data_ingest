@@ -14,5 +14,5 @@ def write_to_redis(key: str, row: dict):
 
 
 def cleanup_old_data(key: str):
-    cutoff = datetime.now().timestamp() - 3600  # 1 hour ago
+    cutoff = (datetime.now().timestamp() - 3600) * 1000  # 1 hour ago
     r.zremrangebyscore(key, 0, cutoff)
