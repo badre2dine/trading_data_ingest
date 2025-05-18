@@ -8,7 +8,9 @@ from worker.tasks import download_month
 db = SessionLocal()
 paris = []
 try:
-    pairs = [s.pair for s in db.query(PairStreamerStatus).all()]
+    pairs = [
+        s.pair for s in db.query(PairStreamerStatus).all() if s.status == "activate"
+    ]
 finally:
     db.close()
 
