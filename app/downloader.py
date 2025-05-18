@@ -111,10 +111,11 @@ def batch_download(
     return final_df.sort("timestamp")
 
 
-def download(symbol, year, month, interval="1m", out_dir="data/"):
+def download(symbol, year, month, interval="1m", out_dir="data/", update=False):
 
+    symbol = symbol.upper()
     out_path = Path(f"{out_dir}/{symbol}/{interval}/{year}-{month:02d}.parquet")
-    if out_path.exists():
+    if out_path.exists() and not update:
         print(f"[INFO] File {out_path} already exists")
         return
     print(f"Downloading {symbol} {year}-{month:02d}")

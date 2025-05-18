@@ -43,3 +43,10 @@ jobs:
           file: ./pair-tick-streamer/dockerfile
           push: true
           tags: ${{ secrets.HARBOR_REGISTRY }}/${{ secrets.HARBOR_PROJECT }}/data-ingest-streamer:latest
+      - name: Build and Push monthly update image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./monthly-update/dockerfile
+          push: true
+          tags: ${{ secrets.HARBOR_REGISTRY }}/${{ secrets.HARBOR_PROJECT }}/data-ingest-monthly-update:latest

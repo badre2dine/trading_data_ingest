@@ -12,7 +12,7 @@ PARQUET_OUTPUT_DIR = os.getenv("PARQUET_OUTPUT_DIR", "./data")
 
 
 @celery_app.task(bind=True)
-def download_month(self, symbol, year, month):
+def download_month(self, symbol, year, month, update=False):
     task_id = self.request.id
     db = SessionLocal()
 
@@ -25,7 +25,14 @@ def download_month(self, symbol, year, month):
             status="STARTED",
             start=datetime.now(),
         )
-        download(symbol, year, month, interval="1m", out_dir=PARQUET_OUTPUT_DIR)
+        download(
+            symbol,
+            year,
+            month,
+            interval="1m",
+            out_dir=PARQUET_OUTPUT_DIR,
+            update=update,
+        )
         save_task_log(
             task_id,
             symbol,

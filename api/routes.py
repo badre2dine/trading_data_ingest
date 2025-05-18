@@ -5,7 +5,7 @@ from pydantic import BaseModel, field_validator
 from kubernetes import client, config
 
 from app.db import SessionLocal
-from app.models import TaskLog
+from app.models import TaskLog, PairStreamerStatus
 from worker.tasks import download_month
 
 
@@ -20,6 +20,14 @@ class BatchRequest(BaseModel):
     start: str
     end: str
     interval: str = "1m"
+    update: bool = False
+
+    @field_validator("symbol")
+    @classmethod
+    def validate_symbol(cls, v: str):
+        # the format should be like 'BTC-USDT'
+        if not v or "-" not in v:
+            raise ValueError("Symbol must be in the format 'SYMBOL-QUOTE'")
 
     @field_validator("start", "end")
     @classmethod
@@ -39,7 +47,9 @@ def ingest(req: BatchRequest):
     end = datetime.datetime.strptime(req.end, "%m-%y")
 
     while current <= end:
-        task = download_month.delay(req.symbol, current.year, current.month)
+        task = download_month.delay(
+            req.symbol, current.year, current.month, update=req.update
+        )
         tasks.append({"year": current.year, "month": current.month, "task_id": task.id})
         if current.month == 12:
             current = datetime.datetime(current.year + 1, 1, 1)
@@ -73,10 +83,11 @@ def manage_streamer_status(pair: str, status: str):
         raise HTTPException(
             status_code=400, detail="Le statut doit être 'activate' ou 'deactivate'."
         )
-
+    pair = pair.upper()
     k8s_apps_v1 = client.AppsV1Api()
     deployment_name = f"pair-tick-streamer-{pair.lower()}"
     namespace = "data-ingestion"
+    db = SessionLocal()
 
     try:
         # Vérifier si le déploiement existe
@@ -98,16 +109,31 @@ def manage_streamer_status(pair: str, status: str):
                 k8s_apps_v1.patch_namespaced_deployment(
                     name=deployment_name, namespace=namespace, body=deployment
                 )
-                return {
-                    "status": "success",
-                    "message": f"Streamer activé pour {pair}.",
-                }
+                # DB update
+                pair_status = db.query(PairStreamerStatus).filter_by(pair=pair).first()
+                if pair_status:
+                    pair_status.status = status
+                    pair_status.updated_at = datetime.datetime.utcnow()
+                else:
+                    pair_status = PairStreamerStatus(pair=pair, status=status)
+                    db.add(pair_status)
+                db.commit()
+                return {"status": "success", "message": f"Streamer activé pour {pair}."}
             else:
                 # Créer le déploiement via la fonction utilitaire
                 deployment = create_k8s_deployment(pair)
                 k8s_apps_v1.create_namespaced_deployment(
                     namespace=namespace, body=deployment
                 )
+                # DB update
+                pair_status = db.query(PairStreamerStatus).filter_by(pair=pair).first()
+                if pair_status:
+                    pair_status.status = status
+                    pair_status.updated_at = datetime.datetime.utcnow()
+                else:
+                    pair_status = PairStreamerStatus(pair=pair, status=status)
+                    db.add(pair_status)
+                db.commit()
                 return {
                     "status": "success",
                     "message": f"Streamer créé et activé pour {pair}.",
@@ -120,6 +146,15 @@ def manage_streamer_status(pair: str, status: str):
                 k8s_apps_v1.patch_namespaced_deployment(
                     name=deployment_name, namespace=namespace, body=deployment
                 )
+                # DB update
+                pair_status = db.query(PairStreamerStatus).filter_by(pair=pair).first()
+                if pair_status:
+                    pair_status.status = status
+                    pair_status.updated_at = datetime.datetime.utcnow()
+                else:
+                    pair_status = PairStreamerStatus(pair=pair, status=status)
+                    db.add(pair_status)
+                db.commit()
                 return {
                     "status": "success",
                     "message": f"Streamer désactivé pour {pair}.",
@@ -129,9 +164,8 @@ def manage_streamer_status(pair: str, status: str):
                     "status": "success",
                     "message": f"Aucun déploiement trouvé pour {pair}, aucune action effectuée.",
                 }
-
-    except client.exceptions.ApiException as e:
-        raise HTTPException(status_code=e.status, detail=e.reason)
+    finally:
+        db.close()
 
 
 def create_k8s_deployment(pair: str):
@@ -184,3 +218,15 @@ def create_k8s_deployment(pair: str):
             },
         },
     }
+
+
+@router.get("/streamer/status")
+def list_streamer_status():
+    db = SessionLocal()
+    try:
+        return [
+            {"pair": s.pair, "status": s.status, "updated_at": s.updated_at}
+            for s in db.query(PairStreamerStatus).all()
+        ]
+    finally:
+        db.close()

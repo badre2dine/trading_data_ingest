@@ -36,3 +36,27 @@ spec:
   - protocol: TCP
     port: 80
     targetPort: 8000
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: streamer-manager
+  namespace: data-ingestion
+rules:
+  - apiGroups: ["apps"]
+    resources: ["deployments"]
+    verbs: ["get", "list", "create", "patch", "delete", "update"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: streamer-manager-binding
+  namespace: data-ingestion
+subjects:
+  - kind: ServiceAccount
+    name: default
+    namespace: data-ingestion
+roleRef:
+  kind: Role
+  name: streamer-manager
+  apiGroup: rbac.authorization.k8s.io
