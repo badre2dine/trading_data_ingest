@@ -14,4 +14,5 @@ finally:
 
 current = datetime.datetime.now() - datetime.timedelta(hours=1)
 for pair in pairs:
-    task = download_month.delay(pair, current.year, current.month)
+    task = download_month.delay(pair, current.year, current.month, update=True)
+    print(f"Task {task.id} for {pair} {current.year}-{current.month:02d} submitted")
