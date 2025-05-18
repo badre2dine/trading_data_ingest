@@ -28,6 +28,7 @@ class BatchRequest(BaseModel):
         # the format should be like 'BTC-USDT'
         if not v or "-" not in v:
             raise ValueError("Symbol must be in the format 'SYMBOL-QUOTE'")
+        return v
 
     @field_validator("start", "end")
     @classmethod
