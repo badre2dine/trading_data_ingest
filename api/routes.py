@@ -202,7 +202,7 @@ def create_k8s_deployment(pair: str):
                         {
                             "name": "tick-streamer",
                             "image": "harbor.home.badre2dine.dev/trading_data_ingest/data-ingest-streamer:latest",
-                            "imagePullPolicy": "IfNotPresent",
+                            "imagePullPolicy": "Always",
                             "env": [
                                 {"name": "PAIR", "value": pair.upper()},
                                 {"name": "REDIS_HOST", "value": "redis-master"},

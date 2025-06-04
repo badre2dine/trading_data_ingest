@@ -4,3 +4,5 @@ data
 .env
 t.py
 ui
+package.py
+k8s/test-deployment.yaml
