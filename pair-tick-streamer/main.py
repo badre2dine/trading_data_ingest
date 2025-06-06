@@ -1,3 +1,4 @@
+import datetime
 import asyncio, json, os, websockets
 import time
 from redis_writer import write_to_redis, cleanup_old_data
@@ -32,7 +33,10 @@ async def listen():
                             "low": float(kline["l"]),
                             "close": float(kline["c"]),
                         }
-
+                        print(
+                            kline["t"],
+                            round(datetime.datetime.now().timestamp()) * 1000,
+                        )
                         write_to_redis(REDIS_KEY, row)
                         cleanup_old_data(REDIS_KEY)
 
