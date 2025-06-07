@@ -19,12 +19,14 @@ logging.basicConfig(
 
 async def listen():
     logging.info("[%s] Connecting to: %s", PAIR, WS_URL)
+    last_cleanup = time.time()
+    CLEANUP_INTERVAL = 30 * 60  # 30 minutes en secondes
+
     while True:  # Retry loop
         try:
             async with websockets.connect(
                 WS_URL, ping_interval=180, ping_timeout=600
             ) as ws:
-                next_tick = time.time() + INTERVAL
                 while True:
                     try:
                         msg = await ws.recv()
@@ -40,20 +42,11 @@ async def listen():
                             "low": float(kline["l"]),
                             "close": float(kline["c"]),
                         }
-                        logging.info(
-                            f"Kline timestamp: {kline['t']}, Local time: "
-                            f"{round(datetime.datetime.now().timestamp()) * 1000}"
-                        )
+
                         write_to_redis(REDIS_KEY, row)
-                        cleanup_old_data(REDIS_KEY)
-
-                        next_tick = max(next_tick, time.time())
-                        sleep_time = next_tick - time.time()
-
-                        if sleep_time > 0:
-                            await asyncio.sleep(sleep_time)
-
-                        next_tick += INTERVAL
+                        if time.time() - last_cleanup > CLEANUP_INTERVAL:
+                            cleanup_old_data(REDIS_KEY)
+                            last_cleanup = time.time()
 
                     except websockets.ConnectionClosed as e:
                         logging.warning(
@@ -64,7 +57,6 @@ async def listen():
                     except Exception as e:
                         logging.error(f"[{PAIR}] WebSocket error: {e}")
                         await asyncio.sleep(5)
-                        next_tick = time.time() + INTERVAL
 
         except Exception as e:
             logging.error(f"[{PAIR}] Failed to connect: {e}")

@@ -6,3 +6,6 @@ t.py
 ui
 package.py
 k8s/test-deployment.yaml
+logs
+k8s/filebeat-values.yaml
+k8s/kibana-values.yaml
